@@ -1,99 +1,101 @@
 #!/usr/bin/python3
+"""
+    Module containing matrix multiplication.
+"""
 
 
 def matrix_mul(m_a, m_b):
+    """ Multiplies two matrices. Validation of matrices must be done in the
+        stated order.
+
+    Args:
+        m_a (:obj:`list' of :obj:`list` of int or float): List of lists of
+            integers or floats.
+        m_b (:obj:`list` of :obj:`list` of int or float): List of lists of
+            integers or floats.
+
+    Returns:
+        :obj:`list` of :obj:`list` of int or float: Product of two matrices.
     """
-    produces a result of matrix multiplaction of two matricies
-    checks for bad input to function
-    """
-    if not isinstance(m_a, list):
+
+    if type(m_a) is not list:
         raise TypeError("m_a must be a list")
-    if not isinstance(m_b, list):
+    if type(m_b) is not list:
         raise TypeError("m_b must be a list")
 
-    if not check_list_of_lists(m_a):
+    a_col_len = 0
+    a_row_len = None
+    a_matrix = True
+    a_i_or_f = True
+    a_rect = True
+    for row in m_a:
+        if type(row) is not list:
+            a_matrix = False
+            break
+        for x in row:
+            if type(x) is not int and type(x) is not float:
+                a_i_or_f = False
+        if a_row_len is not None:
+            if a_row_len != len(row):
+                a_rect = False
+        else:
+            a_row_len = len(row)
+        a_col_len += 1
+
+    b_col_len = 0
+    b_row_len = None
+    b_matrix = True
+    b_i_or_f = True
+    b_rect = True
+    for row in m_b:
+        if type(row) is not list:
+            b_matrix = False
+            break
+        for x in row:
+            if type(x) is not int and type(x) is not float:
+                b_i_or_f = False
+        if b_row_len is not None:
+            if b_row_len != len(row):
+                b_rect = False
+        else:
+            b_row_len = len(row)
+        b_col_len += 1
+
+    if not a_matrix:
         raise TypeError("m_a must be a list of lists")
-    if not check_list_of_lists(m_b):
+
+    if not b_matrix:
         raise TypeError("m_b must be a list of lists")
 
-    if not check_empty_list(m_a):
+    if a_col_len is 0 or (a_row_len is 0 and a_rect):
         raise ValueError("m_a can't be empty")
-    if not check_empty_list(m_b):
+
+    if b_col_len is 0 or (b_row_len is 0 and b_rect):
         raise ValueError("m_b can't be empty")
 
-    if not check_ele_types(m_a):
+    if not a_i_or_f:
         raise TypeError("m_a should contain only integers or floats")
-    if not check_ele_types(m_b):
+
+    if not b_i_or_f:
         raise TypeError("m_b should contain only integers or floats")
 
-    if not check_rectangle(m_a):
-        raise TypeError("each row of m_a must should be of the same size")
-    if not check_rectangle(m_b):
+    if not a_rect:
         raise TypeError("each row of m_a must should be of the same size")
 
-    if not check_matrix_mult(m_a, m_b):
+    if not b_rect:
+        raise TypeError("each row of m_b must should be of the same size")
+
+    if a_row_len != b_col_len:
         raise ValueError("m_a and m_b can't be multiplied")
 
-    if len(m_a) > len(m_b[0]):
-        res_len = len(m_a)
-    elif len(m_a) < len(m_b[0]):
-        res_len = len(m_b[0])
-    else:
-        res_len = len(m_a)
-
     new_matrix = []
-    for row_i in range(0, len(m_a)):
-        values = []
-        for col_i in range(0, len(m_b[0])):
-            res = 0
-            for j in range(0, len(m_a[row_i])):
-                res += m_a[row_i][j] * m_b[j][col_i]
-            values.append(res)
-        new_matrix.append(values)
+    for a_cdx in range(a_col_len):
+        new_row = []
+        for rdx in range(b_row_len):
+            total = 0
+            for cdx in range(b_col_len):
+                total += m_b[cdx][rdx] * m_a[a_cdx][cdx]
+            new_row.append(total)
+        new_matrix.append(new_row)
+
     return new_matrix
-
-
-def check_matrix_mult(m_a, m_b):
-    """checks that two matricies can infact be multiplied
-       length of row of m_a is equal to columns (num rows) in m_b
-       all other matricies checks assumed to have been done
-    """
-    return (len(m_a) == len(m_b[0]) or len(m_b) == len(m_a[0]))
-
-
-def check_list_of_lists(matrix):
-    """checks if a list is a list of lists (aka a matrix)
-    """
-    for row in matrix:
-        if not isinstance(row, list):
-            return False
-    return True
-
-
-def check_ele_types(matrix):
-    """checks if a matrix (list of lists) contains non ints/floats
-    """
-    for row in matrix:
-        for ele in row:
-            if not isinstance(ele, (int, float)):
-                return False
-    return True
-
-
-def check_empty_list(m):
-    """checks if the matrix is empty of sub matrix is empty
-    """
-    if ((m is None or len(m) == 0) or (m[0] is None or len(m[0]) == 0)):
-        return False
-    return True
-
-
-def check_rectangle(matrix):
-    """checks if a matrix is a rectangle
-    """
-    prevRowSize = -1
-    for row in matrix:
-        if prevRowSize != -1 and prevRowSize != len(row):
-            return False
-        prevRowSize = len(row)
-    return True
